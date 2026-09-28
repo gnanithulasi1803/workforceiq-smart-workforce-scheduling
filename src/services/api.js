@@ -1,0 +1,4 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+export const auth={get:()=>localStorage.getItem('jwt'),set:t=>localStorage.setItem('jwt',t),clear:()=>localStorage.removeItem('jwt')};
+async function request(path,options={}){const headers={'Content-Type':'application/json',...(options.headers||{})};const token=auth.get();if(token)headers.Authorization=`Bearer ${token}`;const res=await fetch(`${BASE_URL}${path}`,{...options,headers});const text=await res.text();let data;try{data=text?JSON.parse(text):null}catch{data=text}if(!res.ok)throw new Error(data?.message||data?.error||`Request failed (${res.status})`);return data}
+export const api={get:p=>request(p),post:(p,b)=>request(p,{method:'POST',body:JSON.stringify(b)}),put:(p,b)=>request(p,{method:'PUT',body:b===undefined?undefined:JSON.stringify(b)}),delete:p=>request(p,{method:'DELETE'})};
